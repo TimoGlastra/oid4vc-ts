@@ -1,5 +1,7 @@
 import { ContentType, createZodFetcher, Headers, objectToQueryParams } from '@openid4vc/utils'
 import type { CallbackContext } from '../callbacks.js'
+import type { Jwk, JwkSet } from '../common/jwk/z-jwk.js'
+import { decodeJwt } from '../common/jwt/decode-jwt.js'
 import { createDpopHeadersForRequest, extractDpopNonceFromHeaders, type RequestDpopOptions } from '../dpop/dpop.js'
 import { authorizationServerRequestWithDpopRetry } from '../dpop/dpop-retry.js'
 import { Oauth2Error } from '../error/Oauth2Error.js'
@@ -8,6 +10,7 @@ import { createPkce, type CreatePkceReturn } from '../pkce.js'
 import type {
   InteractiveAuthorizationEndpointFollowUpRequest,
   InteractiveAuthorizationEndpointRequest,
+  Openid4vpRequest,
 } from './z-interactive-authorization.js'
 import { zInteractiveAuthorizationEndpointResponse } from './z-interactive-authorization.js'
 
@@ -179,4 +182,205 @@ export async function sendInteractiveAuthorizationEndpointRequest(options: SendI
       }
     },
   })
+}
+
+/**
+ * Options for validating OpenID4VP expected_url
+ */
+export interface ValidateOpenid4vpExpectedUrlOptions {
+  /**
+   * The OpenID4VP request from the IAE response
+   */
+  openid4vpRequest: Openid4vpRequest
+
+  /**
+   * The URL where follow-up request will be sent
+   * (typically the interactive_authorization_endpoint)
+   */
+  followUpRequestUrl: string
+
+  /**
+   * Callbacks for JWT verification
+   */
+  callbacks: Pick<CallbackContext, 'verifyJwt'>
+
+  /**
+   * JWK or JWK set for verifying the signed request
+   */
+  signerJwk?: Jwk | JwkSet
+}
+
+/**
+ * Result of expected_url validation
+ */
+export interface ValidateOpenid4vpExpectedUrlResult {
+  valid: boolean
+  error?: string
+  errorDescription?: string
+}
+
+/**
+ * Validate expected_url in OpenID4VP request (VP-03, VP-04, PROT-05, PROT-06)
+ *
+ * This function validates that the expected_url in a signed OpenID4VP request
+ * matches the URL where the wallet will send the follow-up request. This prevents
+ * replay attacks from malicious verifiers.
+ *
+ * For unsigned requests (PROT-06), validation is skipped as expected_url is not
+ * enforceable without a signature.
+ *
+ * **WALLET IMPLEMENTATION:** This function should be called by wallet implementations
+ * before responding to an OpenID4VP request from the Authorization Server.
+ *
+ * @param options - Validation options
+ * @returns Validation result indicating success or failure with error details
+ *
+ * @example
+ * ```ts
+ * const result = await validateOpenid4vpExpectedUrl({
+ *   openid4vpRequest: response.openid4vp_request,
+ *   followUpRequestUrl: 'https://as.example.com/iae',
+ *   callbacks: { verifyJwt },
+ *   signerJwk: asJwk
+ * })
+ *
+ * if (!result.valid) {
+ *   throw new Error(`Validation failed: ${result.errorDescription}`)
+ * }
+ * ```
+ */
+export async function validateOpenid4vpExpectedUrl(
+  options: ValidateOpenid4vpExpectedUrlOptions
+): Promise<ValidateOpenid4vpExpectedUrlResult> {
+  const { openid4vpRequest, followUpRequestUrl } = options
+
+  // PROT-06: Unsigned requests bypass expected_url validation
+  if (!openid4vpRequest.request) {
+    return { valid: true }
+  }
+
+  // Decode the JWT to extract claims
+  const decoded = decodeJwt({ jwt: openid4vpRequest.request })
+  const expectedUrl = decoded.payload.expected_url as string | undefined
+
+  // PROT-05: Signed requests must include expected_url
+  if (!expectedUrl) {
+    return {
+      valid: false,
+      error: 'invalid_request',
+      errorDescription: 'expected_url missing in signed OpenID4VP request',
+    }
+  }
+
+  // VP-04: Validate expected_url matches follow-up URL
+  if (expectedUrl !== followUpRequestUrl) {
+    return {
+      valid: false,
+      error: 'invalid_request',
+      errorDescription: 'expected_url mismatch',
+    }
+  }
+
+  return { valid: true }
+}
+
+/**
+ * Options for encoding OpenID4VP response
+ */
+export interface EncodeOpenid4vpResponseOptions {
+  /**
+   * The VP response to encode
+   */
+  vpResponse: {
+    vp_token: string
+    presentation_submission?: unknown
+  }
+
+  /**
+   * Response mode from the OpenID4VP request
+   */
+  responseMode: 'iae_post' | 'iae_post.jwt'
+
+  /**
+   * Encryption key from AS (required for iae_post.jwt)
+   */
+  encryptionKey?: Jwk
+
+  /**
+   * Callbacks for encryption
+   */
+  callbacks?: Pick<CallbackContext, 'encryptJwe'>
+}
+
+/**
+ * Encode OpenID4VP response according to response mode (VP-05, VP-06)
+ *
+ * This function encodes the VP response according to the response_mode specified
+ * in the OpenID4VP request:
+ * - iae_post: JSON-encoded string (VP-05)
+ * - iae_post.jwt: Encrypted JWT using JARM encryption (VP-06)
+ *
+ * **WALLET IMPLEMENTATION:** This function should be called by wallet implementations
+ * to properly encode the VP response before sending it in the follow-up request.
+ *
+ * @param options - Encoding options
+ * @returns Encoded VP response string ready to send as openid4vp_response parameter
+ *
+ * @example JSON encoding (iae_post)
+ * ```ts
+ * const encoded = await encodeOpenid4vpResponse({
+ *   vpResponse: {
+ *     vp_token: 'eyJ...',
+ *     presentation_submission: { ... }
+ *   },
+ *   responseMode: 'iae_post'
+ * })
+ * // Returns: JSON string
+ * ```
+ *
+ * @example Encrypted encoding (iae_post.jwt)
+ * ```ts
+ * const encoded = await encodeOpenid4vpResponse({
+ *   vpResponse: {
+ *     vp_token: 'eyJ...',
+ *     presentation_submission: { ... }
+ *   },
+ *   responseMode: 'iae_post.jwt',
+ *   encryptionKey: asPublicJwk,
+ *   callbacks: { encryptJwe }
+ * })
+ * // Returns: Encrypted JWT string
+ * ```
+ */
+export async function encodeOpenid4vpResponse(options: EncodeOpenid4vpResponseOptions): Promise<string> {
+  const { vpResponse, responseMode } = options
+
+  // VP-05: For iae_post, return JSON-encoded string
+  if (responseMode === 'iae_post') {
+    return JSON.stringify(vpResponse)
+  }
+
+  // VP-06: For iae_post.jwt, encrypt using JARM
+  if (responseMode === 'iae_post.jwt') {
+    if (!options.encryptionKey || !options.callbacks?.encryptJwe) {
+      throw new Oauth2Error(
+        'encryptionKey and callbacks.encryptJwe are required for iae_post.jwt response mode'
+      )
+    }
+
+    // Use JARM encryption per OpenID4VP Section 8.3
+    const result = await options.callbacks.encryptJwe(
+      {
+        method: 'jwk',
+        publicJwk: options.encryptionKey,
+        alg: 'ECDH-ES',
+        enc: 'A256GCM',
+      },
+      JSON.stringify(vpResponse)
+    )
+
+    return result.jwe
+  }
+
+  throw new Oauth2Error(`Unsupported response mode: ${responseMode}`)
 }
