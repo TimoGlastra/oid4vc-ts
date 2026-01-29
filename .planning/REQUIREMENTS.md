@@ -7,27 +7,27 @@
 
 ### Naming Migration
 
-- [ ] **NAME-01**: All TypeScript types rename IAR -> IAE (InteractiveAuthorization*)
+- [x] **NAME-01**: All TypeScript types rename IAR -> IAE (InteractiveAuthorization*)
 - [ ] **NAME-02**: All file names rename interactive-authorization -> interactive-authorization-endpoint
-- [ ] **NAME-03**: All function names update to use IAE terminology
-- [ ] **NAME-04**: All Zod schema names update (zInteractiveAuthorizationEndpoint*)
-- [ ] **NAME-05**: All exported symbols update in index files
+- [x] **NAME-03**: All function names update to use IAE terminology
+- [x] **NAME-04**: All Zod schema names update (zInteractiveAuthorizationEndpoint*)
+- [x] **NAME-05**: All exported symbols update in index files
 
 ### Protocol Changes
 
-- [ ] **PROT-01**: Response mode `iar-post` changes to `iae_post`
-- [ ] **PROT-02**: Response mode `iar-post.jwt` changes to `iae_post.jwt`
-- [ ] **PROT-03**: Audience/domain prefix `iar:` changes to `iae:`
+- [x] **PROT-01**: Response mode `iar-post` changes to `iae_post`
+- [x] **PROT-02**: Response mode `iar-post.jwt` changes to `iae_post.jwt`
+- [x] **PROT-03**: Audience/domain prefix `iar:` changes to `iae:`
 - [x] **PROT-04**: `expected_origins` parameter removed from signed requests
 - [ ] **PROT-05**: `expected_url` parameter added for signed requests with validation
 - [ ] **PROT-06**: `expected_url` ignored in unsigned requests (per spec)
 
 ### Metadata Updates
 
-- [ ] **META-01**: `interactive_authorization_endpoint` added to Authorization Server metadata schema
-- [ ] **META-02**: `require_interactive_authorization_request` boolean added to AS metadata
-- [ ] **META-03**: `require_interactive_authorization_request` validation (must not be present if endpoint omitted)
-- [ ] **META-04**: Metadata description indicates SHOULD use IAE when present
+- [x] **META-01**: `interactive_authorization_endpoint` added to Authorization Server metadata schema
+- [x] **META-02**: `require_interactive_authorization_request` boolean added to AS metadata
+- [x] **META-03**: `require_interactive_authorization_request` validation (must not be present if endpoint omitted)
+- [x] **META-04**: Metadata description indicates SHOULD use IAE when present
 
 ### PKCE & Security
 
@@ -103,21 +103,21 @@
 
 | Requirement | Phase | Status | Notes |
 |-------------|-------|--------|-------|
-| NAME-01 | Phase 1 | Pending | |
+| NAME-01 | Phase 1 | Complete | Completed 2026-01-29 |
 | NAME-02 | Deferred | Deferred | File renaming deferred per research findings; see ROADMAP |
-| NAME-03 | Phase 1 | Pending | |
-| NAME-04 | Phase 1 | Pending | |
-| NAME-05 | Phase 1 | Pending | |
-| PROT-01 | Phase 1 | Pending | |
-| PROT-02 | Phase 1 | Pending | |
-| PROT-03 | Phase 1 | Pending | |
+| NAME-03 | Phase 1 | Complete | Completed 2026-01-29 |
+| NAME-04 | Phase 1 | Complete | Completed 2026-01-29 |
+| NAME-05 | Phase 1 | Complete | Completed 2026-01-29 |
+| PROT-01 | Phase 1 | Complete | Completed 2026-01-29 |
+| PROT-02 | Phase 1 | Complete | Completed 2026-01-29 |
+| PROT-03 | Phase 1 | Complete | Completed 2026-01-29 |
 | PROT-04 | Phase 1 | Satisfied | Field never existed in codebase |
 | PROT-05 | Phase 2 | Pending | Moved from Phase 1; implementation logic not schema |
 | PROT-06 | Phase 2 | Pending | Moved from Phase 1; implementation logic not schema |
-| META-01 | Phase 1 | Pending | |
-| META-02 | Phase 1 | Pending | |
-| META-03 | Phase 1 | Pending | |
-| META-04 | Phase 1 | Pending | |
+| META-01 | Phase 1 | Complete | Completed 2026-01-29 |
+| META-02 | Phase 1 | Complete | Completed 2026-01-29 |
+| META-03 | Phase 1 | Complete | Completed 2026-01-29 |
+| META-04 | Phase 1 | Complete | Completed 2026-01-29 |
 | PKCE-01 | Phase 2 | Pending | |
 | PKCE-02 | Phase 2 | Pending | |
 | PKCE-03 | Phase 2 | Pending | |
@@ -155,4 +155,4 @@
 
 ---
 *Requirements defined: 2026-01-29*
-*Last updated: 2026-01-29 after plan revision (NAME-02 deferred, PROT-04/05/06 clarified)*
+*Last updated: 2026-01-29 after Phase 1 completion (11 requirements marked Complete)*

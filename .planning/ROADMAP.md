@@ -12,7 +12,7 @@ This roadmap migrates the existing Interactive Authorization implementation from
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Schema & Type Foundation** - Migrate all schemas, types, and constants to IAE naming and protocol
+- [x] **Phase 1: Schema & Type Foundation** - Migrate all schemas, types, and constants to IAE naming and protocol
 - [ ] **Phase 2: Implementation & Integration** - Update function implementations, server/client classes, and security flows
 - [ ] **Phase 3: Verification & Documentation** - Update tests and documentation to match new protocol
 
@@ -39,8 +39,8 @@ File/folder renaming from `interactive-authorization` to `interactive-authorizat
 - PROT-05/06 (expected_url validation): These are Wallet-side validation requirements when processing OpenID4VP requests, not schema definitions. Moved to Phase 2 with VP-02, VP-03, VP-04.
 
 Plans:
-- [ ] 01-01-PLAN.md — Update Zod schemas, types, and protocol constants to IAE naming
-- [ ] 01-02-PLAN.md — Update implementation files and public API exports
+- [x] 01-01-PLAN.md — Update Zod schemas, types, and protocol constants to IAE naming
+- [x] 01-02-PLAN.md — Update implementation files and public API exports
 
 ### Phase 2: Implementation & Integration
 **Goal**: All function implementations, server/client classes, and security flows conform to IAE specification
@@ -79,6 +79,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema & Type Foundation | 0/2 | Planned | - |
+| 1. Schema & Type Foundation | 2/2 | Complete ✓ | 2026-01-29 |
 | 2. Implementation & Integration | 0/1 | Not started | - |
 | 3. Verification & Documentation | 0/1 | Not started | - |
