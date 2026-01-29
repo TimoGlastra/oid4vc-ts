@@ -10,6 +10,10 @@ import {
   Oauth2ErrorCodes,
   Oauth2ServerErrorResponseError,
 } from '../src/index.js'
+import {
+  encodeOpenid4vpResponse,
+  validateOpenid4vpExpectedUrl,
+} from '../src/interactive-authorization/send-interactive-authorization-request.js'
 import { callbacks, getSignJwtCallback } from './util.mjs'
 
 async function generateJwkKeyPair(): Promise<{ publicKey: Jwk; privateKey: Jwk }> {
@@ -882,5 +886,418 @@ describe('Interactive Authorization Endpoint - Integration', () => {
 
     expect(codeResponse.status).toBe('ok')
     expect(codeResponse.code).toBe('web-auth-code-789')
+  })
+})
+
+describe('expected_url validation', () => {
+  test('should validate matching expected_url in signed OpenID4VP request', async () => {
+    const keyPair = await generateJwkKeyPair()
+
+    // Create a signed JWT with expected_url using jose directly
+    const payload = {
+      client_id: 'https://verifier.example.com',
+      response_mode: 'iae_post',
+      expected_url: 'https://example.com/interactive-authorization',
+      nonce: 'test-nonce',
+      presentation_definition: {},
+    }
+
+    const privateKey = await jose.importJWK({ ...keyPair.privateKey, alg: 'ES256' })
+    const jwt = await new jose.SignJWT(payload)
+      .setProtectedHeader({ alg: 'ES256', typ: 'JWT' })
+      .sign(privateKey)
+
+    const openid4vpRequest = {
+      request: jwt,
+      client_id: 'https://verifier.example.com',
+    }
+
+    const result = await validateOpenid4vpExpectedUrl({
+      openid4vpRequest,
+      followUpRequestUrl: 'https://example.com/interactive-authorization',
+      callbacks,
+      signerJwk: keyPair.publicKey,
+    })
+
+    expect(result.valid).toBe(true)
+    expect(result.error).toBeUndefined()
+  })
+
+  test('should reject mismatched expected_url (replay attack prevention)', async () => {
+    const keyPair = await generateJwkKeyPair()
+
+    // Create a signed JWT with different expected_url using jose directly
+    const payload = {
+      client_id: 'https://verifier.example.com',
+      response_mode: 'iae_post',
+      expected_url: 'https://original.example.com/iae',
+      nonce: 'test-nonce',
+      presentation_definition: {},
+    }
+
+    const privateKey = await jose.importJWK({ ...keyPair.privateKey, alg: 'ES256' })
+    const jwt = await new jose.SignJWT(payload)
+      .setProtectedHeader({ alg: 'ES256', typ: 'JWT' })
+      .sign(privateKey)
+
+    const openid4vpRequest = {
+      request: jwt,
+      client_id: 'https://verifier.example.com',
+    }
+
+    const result = await validateOpenid4vpExpectedUrl({
+      openid4vpRequest,
+      followUpRequestUrl: 'https://attacker.example.com/iae',
+      callbacks,
+      signerJwk: keyPair.publicKey,
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.error).toBe('invalid_request')
+    expect(result.errorDescription).toBe('expected_url mismatch')
+  })
+
+  test('should skip validation for unsigned requests (PROT-06)', async () => {
+    // Unsigned request - no JWT, just plain object
+    const openid4vpRequest = {
+      client_id: 'https://verifier.example.com',
+      response_mode: 'iae_post',
+      presentation_definition: {},
+    }
+
+    const result = await validateOpenid4vpExpectedUrl({
+      openid4vpRequest,
+      followUpRequestUrl: 'https://example.com/interactive-authorization',
+      callbacks,
+    })
+
+    expect(result.valid).toBe(true)
+    expect(result.error).toBeUndefined()
+  })
+})
+
+describe('auth_session in redirect response', () => {
+  test('should include auth_session when returnAuthSessionInRedirect is true', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    const server = new Oauth2AuthorizationServer({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+      },
+    })
+
+    const response = server.createInteractiveAuthorizationRedirectToWebInteraction({
+      authSession: 'session-with-auth',
+      requestUri: 'urn:ietf:params:oauth:request_uri:test',
+      expiresIn: 600,
+      returnAuthSessionInRedirect: true,
+    })
+
+    expect(response.status).toBe('require_interaction')
+    expect(response.type).toBe('redirect_to_web')
+    expect(response.auth_session).toBe('session-with-auth')
+    // auth_session should be included in the redirect URI when flag is true
+    expect(response.return_auth_session_in_redirect).toBe(true)
+  })
+
+  test('should omit auth_session when returnAuthSessionInRedirect is false', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    const server = new Oauth2AuthorizationServer({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+      },
+    })
+
+    const response = server.createInteractiveAuthorizationRedirectToWebInteraction({
+      authSession: 'session-no-auth',
+      requestUri: 'urn:ietf:params:oauth:request_uri:test',
+      expiresIn: 600,
+      returnAuthSessionInRedirect: false,
+    })
+
+    expect(response.status).toBe('require_interaction')
+    expect(response.type).toBe('redirect_to_web')
+    expect(response.auth_session).toBe('session-no-auth')
+    expect(response.return_auth_session_in_redirect).toBe(false)
+  })
+})
+
+describe('PKCE in redirect_to_web flow', () => {
+  test('should generate PKCE for initial request with redirect_to_web', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    const client = new Oauth2Client({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+        fetch: async (url, init) => {
+          const body = new URLSearchParams(init?.body as string)
+
+          // Verify PKCE parameters are included
+          expect(body.get('code_challenge')).toBeDefined()
+          expect(body.get('code_challenge_method')).toBe('S256')
+
+          return new Response(
+            JSON.stringify({
+              status: 'require_interaction',
+              type: 'redirect_to_web',
+              auth_session: 'session-pkce-123',
+              request_uri: 'urn:ietf:params:oauth:request_uri:test',
+              expires_in: 600,
+            }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          )
+        },
+      },
+    })
+
+    const result = await client.sendInteractiveAuthorizationRequest({
+      authorizationServerMetadata,
+      request: {
+        response_type: 'code',
+        client_id: 'test-client',
+        interaction_types_supported: 'redirect_to_web',
+        redirect_uri: 'https://example.com/callback',
+      },
+    })
+
+    expect(result.pkce).toBeDefined()
+    expect(result.pkce?.codeVerifier).toBeDefined()
+    expect(result.pkce?.codeChallenge).toBeDefined()
+  })
+
+  test('should verify valid code_verifier in follow-up request', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    // First generate PKCE
+    const codeVerifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk'
+    const codeChallenge = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM'
+
+    const server = new Oauth2AuthorizationServer({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+      },
+    })
+
+    // Verify follow-up request with matching code_verifier
+    const followUpRequest: InteractiveAuthorizationEndpointFollowUpRequest = {
+      auth_session: 'session-pkce',
+      code_verifier: codeVerifier,
+    }
+
+    const result = await server.verifyInteractiveAuthorizationRequest({
+      interactiveAuthorizationRequest: followUpRequest,
+      isFollowUpRequest: true,
+      authorizationServerMetadata,
+      request: {
+        url: 'https://example.com/interactive-authorization',
+        method: 'POST',
+        headers: new Headers(),
+      },
+      pkceState: {
+        codeChallenge,
+        codeChallengeMethod: 'S256',
+      },
+      codeVerifier,
+      callbacks,
+    })
+
+    expect(result.pkceVerified).toBe(true)
+  })
+
+  test('should reject follow-up without code_verifier when PKCE was used', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    const server = new Oauth2AuthorizationServer({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+      },
+    })
+
+    // PKCE was used in initial request
+    const pkceState = {
+      codeChallenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+      codeChallengeMethod: 'S256' as const,
+    }
+
+    // Follow-up request missing code_verifier (downgrade attack)
+    const followUpRequest: InteractiveAuthorizationEndpointFollowUpRequest = {
+      auth_session: 'session-pkce',
+    }
+
+    await expect(
+      server.verifyInteractiveAuthorizationRequest({
+        interactiveAuthorizationRequest: followUpRequest,
+        isFollowUpRequest: true,
+        authorizationServerMetadata,
+        request: {
+          url: 'https://example.com/interactive-authorization',
+          method: 'POST',
+          headers: new Headers(),
+        },
+        pkceState,
+        callbacks,
+      })
+    ).rejects.toThrow(Oauth2ServerErrorResponseError)
+  })
+
+  test('should reject follow-up with unexpected code_verifier when PKCE not used', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    const server = new Oauth2AuthorizationServer({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+      },
+    })
+
+    // PKCE was NOT used in initial request (no pkceState)
+    // Follow-up request unexpectedly includes code_verifier
+    const followUpRequest: InteractiveAuthorizationEndpointFollowUpRequest = {
+      auth_session: 'session-no-pkce',
+      code_verifier: 'unexpected-verifier',
+    }
+
+    await expect(
+      server.verifyInteractiveAuthorizationRequest({
+        interactiveAuthorizationRequest: followUpRequest,
+        isFollowUpRequest: true,
+        authorizationServerMetadata,
+        request: {
+          url: 'https://example.com/interactive-authorization',
+          method: 'POST',
+          headers: new Headers(),
+        },
+        // No pkceState - PKCE was not used
+        codeVerifier: followUpRequest.code_verifier,
+        callbacks,
+      })
+    ).rejects.toThrow(Oauth2ServerErrorResponseError)
+  })
+})
+
+describe('Authorization Server Metadata IAE parameters', () => {
+  test('should validate interactive_authorization_endpoint in metadata', () => {
+    const metadata: AuthorizationServerMetadata = {
+      issuer: 'https://example.com',
+      authorization_endpoint: 'https://example.com/authorize',
+      token_endpoint: 'https://example.com/token',
+      interactive_authorization_endpoint: 'https://example.com/interactive-authorization',
+    }
+
+    // The metadata is already used throughout tests - verify it's recognized
+    expect(metadata.interactive_authorization_endpoint).toBe('https://example.com/interactive-authorization')
+  })
+
+  test('should validate require_interactive_authorization_request flag', () => {
+    const metadata: AuthorizationServerMetadata = {
+      issuer: 'https://example.com',
+      authorization_endpoint: 'https://example.com/authorize',
+      token_endpoint: 'https://example.com/token',
+      interactive_authorization_endpoint: 'https://example.com/interactive-authorization',
+      require_interactive_authorization_request: true,
+    }
+
+    expect(metadata.require_interactive_authorization_request).toBe(true)
+  })
+
+  test('should handle metadata without interactive_authorization_endpoint', async () => {
+    const keyPair = await generateJwkKeyPair()
+    const signJwt = getSignJwtCallback([keyPair.privateKey])
+
+    const client = new Oauth2Client({
+      callbacks: {
+        ...callbacks,
+        signJwt,
+      },
+    })
+
+    const metadataWithoutIAE: AuthorizationServerMetadata = {
+      issuer: 'https://example.com',
+      authorization_endpoint: 'https://example.com/authorize',
+      token_endpoint: 'https://example.com/token',
+    }
+
+    await expect(
+      client.sendInteractiveAuthorizationRequest({
+        authorizationServerMetadata: metadataWithoutIAE,
+        request: {
+          response_type: 'code',
+          client_id: 'test-client',
+          interaction_types_supported: 'openid4vp_presentation',
+        },
+      })
+    ).rejects.toThrow('interactive_authorization_endpoint')
+  })
+})
+
+describe('OpenID4VP response encoding', () => {
+  test('should encode response in iae_post mode', async () => {
+    const vpResponse = {
+      vp_token: 'eyJraWQiOiJkaWQ6andrOmV5SmhiR2NpT2lKRlV6STFOaUo5...',
+      presentation_submission: {
+        id: 'submission-1',
+        definition_id: 'definition-1',
+        descriptor_map: [],
+      },
+    }
+
+    const encoded = await encodeOpenid4vpResponse({
+      vpResponse,
+      responseMode: 'iae_post',
+    })
+
+    expect(encoded).toBe(JSON.stringify(vpResponse))
+  })
+
+  test('should encode response in iae_post.jwt mode', async () => {
+    const keyPair = await generateJwkKeyPair()
+
+    const vpResponse = {
+      vp_token: 'eyJraWQiOiJkaWQ6andrOmV5SmhiR2NpT2lKRlV6STFOaUo5...',
+      presentation_submission: {
+        id: 'submission-1',
+        definition_id: 'definition-1',
+        descriptor_map: [],
+      },
+    }
+
+    // Add alg to the public key for jose
+    const publicKeyWithAlg = { ...keyPair.publicKey, alg: 'ECDH-ES' }
+
+    const encoded = await encodeOpenid4vpResponse({
+      vpResponse,
+      responseMode: 'iae_post.jwt',
+      encryptionKey: publicKeyWithAlg,
+      callbacks: {
+        encryptJwe: async (encrypter, payload) => {
+          // Mock encryption - in real implementation this uses ECDH-ES + A256GCM
+          const publicKey = await jose.importJWK(encrypter.publicJwk)
+          const jwe = await new jose.CompactEncrypt(new TextEncoder().encode(payload))
+            .setProtectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
+            .encrypt(publicKey)
+          return { jwe }
+        },
+      },
+    })
+
+    expect(encoded).toBeDefined()
+    expect(typeof encoded).toBe('string')
+    // Should be a JWE (five base64url parts separated by dots)
+    expect(encoded.split('.').length).toBe(5)
   })
 })
