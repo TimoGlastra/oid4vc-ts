@@ -19,8 +19,8 @@
 - [x] **PROT-02**: Response mode `iar-post.jwt` changes to `iae_post.jwt`
 - [x] **PROT-03**: Audience/domain prefix `iar:` changes to `iae:`
 - [x] **PROT-04**: `expected_origins` parameter removed from signed requests
-- [ ] **PROT-05**: `expected_url` parameter added for signed requests with validation
-- [ ] **PROT-06**: `expected_url` ignored in unsigned requests (per spec)
+- [x] **PROT-05**: `expected_url` parameter added for signed requests with validation
+- [x] **PROT-06**: `expected_url` ignored in unsigned requests (per spec)
 
 ### Metadata Updates
 
@@ -31,41 +31,41 @@
 
 ### PKCE & Security
 
-- [ ] **PKCE-01**: `code_challenge` and `code_challenge_method` included when `redirect_to_web` supported
-- [ ] **PKCE-02**: Authorization Server enforces `code_verifier` in follow-up after `redirect_to_web`
-- [ ] **PKCE-03**: Redirect URI must be HTTPS (per RFC 8252 Section 7.2)
-- [ ] **PKCE-04**: Wallet must not use embedded user-agent for redirect_to_web
+- [x] **PKCE-01**: `code_challenge` and `code_challenge_method` included when `redirect_to_web` supported
+- [x] **PKCE-02**: Authorization Server enforces `code_verifier` in follow-up after `redirect_to_web`
+- [x] **PKCE-03**: Redirect URI must be HTTPS (per RFC 8252 Section 7.2)
+- [x] **PKCE-04**: Wallet must not use embedded user-agent for redirect_to_web
 
 ### Follow-up Flow
 
-- [ ] **FLOW-01**: Authorization Server can return `auth_session` in redirect response (not just `code`)
-- [ ] **FLOW-02**: Wallet makes follow-up request with `auth_session` when redirect doesn't include `code`
-- [ ] **FLOW-03**: Follow-up request after redirect_to_web includes `code_verifier` if PKCE used
+- [x] **FLOW-01**: Authorization Server can return `auth_session` in redirect response (not just `code`)
+- [x] **FLOW-02**: Wallet makes follow-up request with `auth_session` when redirect doesn't include `code`
+- [x] **FLOW-03**: Follow-up request after redirect_to_web includes `code_verifier` if PKCE used
 
 ### Client Authentication
 
-- [ ] **AUTH-01**: Client authentication rules match PAR requirements (RFC 9126, RFC 6749)
-- [ ] **AUTH-02**: Applicable authentication methods same as PAR
+- [x] **AUTH-01**: Client authentication rules match PAR requirements (RFC 9126, RFC 6749)
+- [x] **AUTH-02**: Applicable authentication methods same as PAR
 
 ### Session Security
 
-- [ ] **SESS-01**: `auth_session` value must be distinct for each interactive authorization response
-- [ ] **SESS-02**: Authorization Server associates nonce with auth_session for OpenID4VP presentation
-- [ ] **SESS-03**: Authorization Server verifies presentation uses same nonce
+- [x] **SESS-01**: `auth_session` value must be distinct for each interactive authorization response
+- [x] **SESS-02**: Authorization Server associates nonce with auth_session for OpenID4VP presentation
+- [x] **SESS-03**: Authorization Server verifies presentation uses same nonce
 
 ### OpenID4VP Integration
 
-- [ ] **VP-01**: `response_mode` in OpenID4VP request must be `iae_post` or `iae_post.jwt`
-- [ ] **VP-02**: `expected_url` parameter present in signed OpenID4VP requests
-- [ ] **VP-03**: Wallet validates `expected_url` matches follow-up request URL
-- [ ] **VP-04**: Wallet returns error if `expected_url` doesn't match
-- [ ] **VP-05**: `openid4vp_response` parameter contains JSON-encoded response
-- [ ] **VP-06**: Response encrypted when `response_mode` is `iae_post.jwt`
+- [x] **VP-01**: `response_mode` in OpenID4VP request must be `iae_post` or `iae_post.jwt`
+- [x] **VP-02**: `expected_url` parameter present in signed OpenID4VP requests
+- [x] **VP-03**: Wallet validates `expected_url` matches follow-up request URL
+- [x] **VP-04**: Wallet returns error if `expected_url` doesn't match
+- [x] **VP-05**: `openid4vp_response` parameter contains JSON-encoded response
+- [x] **VP-06**: Response encrypted when `response_mode` is `iae_post.jwt`
 
 ### Error Handling
 
-- [ ] **ERR-01**: Error codes consistent with RFC 9126 (PAR errors)
-- [ ] **ERR-02**: `missing_interaction_type` error code properly handled
+- [x] **ERR-01**: Error codes consistent with RFC 9126 (PAR errors)
+- [x] **ERR-02**: `missing_interaction_type` error code properly handled
 
 ### Testing
 
