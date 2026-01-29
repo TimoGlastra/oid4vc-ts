@@ -170,13 +170,30 @@ export class Oauth2Client {
   }
 
   /**
-   * Send an Interactive Authorization Request
+   * Send a request to the Interactive Authorization Endpoint (IAE)
    *
-   * This method sends a request to the Interactive Authorization Endpoint.
-   * Supports both initial requests and follow-up requests.
+   * This is a convenience method that wraps sendInteractiveAuthorizationEndpointRequest.
+   * Supports both initial requests (with interaction_types_supported) and follow-up
+   * requests (with auth_session).
+   *
+   * The IAE flow enables complex authentication flows where interaction occurs
+   * directly with the Wallet, such as OpenID4VP presentation or redirect_to_web.
    *
    * @param options - Request options
    * @returns The interactive authorization response and updated DPoP config
+   *
+   * @example Initial request
+   * ```ts
+   * const client = new Oauth2Client({ callbacks })
+   * const result = await client.sendInteractiveAuthorizationRequest({
+   *   authorizationServerMetadata,
+   *   request: {
+   *     response_type: 'code',
+   *     client_id: 'wallet-client',
+   *     interaction_types_supported: 'openid4vp_presentation,redirect_to_web'
+   *   }
+   * })
+   * ```
    */
   public async sendInteractiveAuthorizationRequest(
     options: Omit<SendInteractiveAuthorizationEndpointRequestOptions, 'callbacks'>

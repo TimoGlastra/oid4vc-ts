@@ -62,17 +62,21 @@ export interface VerifyInteractiveAuthorizationEndpointRequestOptions
 }
 
 /**
- * Verify an Interactive Authorization Request
+ * Verify a request to the Interactive Authorization Endpoint (IAE)
  *
  * This function verifies the interactive authorization request including:
  * - Client attestation (if present)
  * - DPoP binding (if present)
  * - Authorization request parameters (for initial requests)
  * - PKCE verification (for follow-up requests with code_verifier)
- * - HTTPS redirect URI validation (for redirect_to_web flows)
+ * - HTTPS redirect URI validation (for redirect_to_web flows per RFC 8252)
  *
  * For follow-up requests, the verification is lighter as most parameters
  * have already been verified in the initial request.
+ *
+ * PKCE downgrade attack prevention (both directions):
+ * - Rejects follow-up requests missing code_verifier when PKCE was used initially
+ * - Rejects follow-up requests with unexpected code_verifier when PKCE was not used
  *
  * Client authentication follows PAR requirements (AUTH-01, AUTH-02):
  * - For initial requests: full client authentication per RFC 9126 and RFC 6749 Section 2.3
@@ -92,7 +96,8 @@ export interface VerifyInteractiveAuthorizationEndpointRequestOptions
  *   interactiveAuthorizationRequest: request,
  *   isFollowUpRequest: false,
  *   authorizationServerMetadata,
- *   fetch
+ *   request: httpRequest,
+ *   callbacks
  * })
  * ```
  *
@@ -103,6 +108,9 @@ export interface VerifyInteractiveAuthorizationEndpointRequestOptions
  *   isFollowUpRequest: true,
  *   pkceState: { codeChallenge: '...', codeChallengeMethod: 'S256' },
  *   codeVerifier: followUpRequest.code_verifier,
+ *   redirectUri: followUpRequest.redirect_uri,  // HTTPS validation
+ *   authorizationServerMetadata,
+ *   request: httpRequest,
  *   callbacks: { hash }
  * })
  * // result.pkceVerified === true

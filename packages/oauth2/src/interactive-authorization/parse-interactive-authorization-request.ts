@@ -50,32 +50,41 @@ export interface ParseInteractiveAuthorizationEndpointRequestResult extends Pars
 }
 
 /**
- * Parse an Interactive Authorization Request
+ * Parse a request to the Interactive Authorization Endpoint (IAE)
  *
  * This function parses and validates an Interactive Authorization Endpoint request.
  * It automatically detects whether this is an initial request or a follow-up request
  * based on the presence of the auth_session parameter.
  *
+ * For initial requests, PKCE state is extracted from code_challenge and code_challenge_method
+ * parameters if present. The server should store this with the auth_session for later
+ * verification in follow-up requests.
+ *
  * @param options - Parsing options
- * @returns The parsed request and metadata
+ * @returns The parsed request and metadata including PKCE state if present
  * @throws {Oauth2ServerErrorResponseError} if validation fails
  *
- * @example Parse initial request
+ * @example Parse initial request with PKCE
  * ```ts
- * const { interactiveAuthorizationRequest, isFollowUpRequest } = parseInteractiveAuthorizationEndpointRequest({
- *   request: req,
- *   interactiveAuthorizationRequest: req.body
- * })
+ * const { interactiveAuthorizationRequest, isFollowUpRequest, pkce } =
+ *   parseInteractiveAuthorizationEndpointRequest({
+ *     request: req,
+ *     interactiveAuthorizationRequest: req.body
+ *   })
  * // isFollowUpRequest = false
+ * // pkce = { codeChallenge: '...', codeChallengeMethod: 'S256' }
+ * // Server should store pkce with auth_session
  * ```
  *
  * @example Parse follow-up request
  * ```ts
- * const { interactiveAuthorizationRequest, isFollowUpRequest } = parseInteractiveAuthorizationEndpointRequest({
- *   request: req,
- *   interactiveAuthorizationRequest: req.body
- * })
+ * const { interactiveAuthorizationRequest, isFollowUpRequest } =
+ *   parseInteractiveAuthorizationEndpointRequest({
+ *     request: req,
+ *     interactiveAuthorizationRequest: req.body
+ *   })
  * // isFollowUpRequest = true
+ * // Server should retrieve PKCE state from session if code_verifier present
  * ```
  */
 export function parseInteractiveAuthorizationEndpointRequest(

@@ -57,22 +57,31 @@ export interface SendInteractiveAuthorizationEndpointRequestOptions {
 }
 
 /**
- * Send an Interactive Authorization Request to the Authorization Server
+ * Send a request to the Interactive Authorization Endpoint (IAE)
  *
  * Implements the Interactive Authorization Endpoint flow from OpenID4VCI 1.1.
- * This endpoint enables complex authentication and authorization flows where
- * interaction occurs directly with the Wallet rather than being intermediated
- * by a browser.
+ * The IAE enables complex authentication and authorization flows where
+ * interaction occurs directly with the Wallet.
  *
  * The request can be either:
  * - Initial request: Contains authorization parameters and interaction_types_supported
  * - Follow-up request: Contains auth_session and interaction-specific parameters
  *
+ * Features:
+ * - PKCE for redirect_to_web flows (PKCE-01, PKCE-02): Automatically generated for initial requests
+ * - expected_url validation for replay protection: Wallets should validate this claim
+ * - Response modes: iae_post, iae_post.jwt (VP-01)
+ * - DPoP binding support for request authentication
+ *
+ * @note This function implements the IAE specification from OpenID4VCI 1.1.
+ *       The previous "Interactive Authorization Request" terminology has been
+ *       replaced with "Interactive Authorization Endpoint" per spec updates.
+ *
  * @param options - Configuration options for the request
  * @returns The interactive authorization response and updated DPoP config
  * @throws {Oauth2Error} if the authorization server doesn't support interactive authorization
  *
- * @example Initial request
+ * @example Initial request with PKCE for redirect_to_web
  * ```ts
  * const result = await sendInteractiveAuthorizationEndpointRequest({
  *   callbacks,
@@ -81,8 +90,22 @@ export interface SendInteractiveAuthorizationEndpointRequestOptions {
  *     response_type: 'code',
  *     client_id: 'my-client',
  *     interaction_types_supported: 'openid4vp_presentation,redirect_to_web',
+ *     redirect_uri: 'https://wallet.example.com/callback',
  *     authorization_details: [...]
  *   }
+ * })
+ * // result.pkce contains { codeVerifier, codeChallenge, codeChallengeMethod }
+ * ```
+ *
+ * @example Follow-up request with code_verifier after redirect_to_web
+ * ```ts
+ * const result = await sendInteractiveAuthorizationEndpointRequest({
+ *   callbacks,
+ *   authorizationServerMetadata,
+ *   request: {
+ *     auth_session: 'session-123',
+ *   },
+ *   codeVerifier: savedPkce.codeVerifier  // From initial request
  * })
  * ```
  *
