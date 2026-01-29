@@ -7,8 +7,8 @@
 
 ### Naming Migration
 
-- [ ] **NAME-01**: All TypeScript types rename IAR → IAE (InteractiveAuthorization*)
-- [ ] **NAME-02**: All file names rename interactive-authorization → interactive-authorization-endpoint
+- [ ] **NAME-01**: All TypeScript types rename IAR -> IAE (InteractiveAuthorization*)
+- [ ] **NAME-02**: All file names rename interactive-authorization -> interactive-authorization-endpoint
 - [ ] **NAME-03**: All function names update to use IAE terminology
 - [ ] **NAME-04**: All Zod schema names update (zInteractiveAuthorizationEndpoint*)
 - [ ] **NAME-05**: All exported symbols update in index files
@@ -18,7 +18,7 @@
 - [ ] **PROT-01**: Response mode `iar-post` changes to `iae_post`
 - [ ] **PROT-02**: Response mode `iar-post.jwt` changes to `iae_post.jwt`
 - [ ] **PROT-03**: Audience/domain prefix `iar:` changes to `iae:`
-- [ ] **PROT-04**: `expected_origins` parameter removed from signed requests
+- [x] **PROT-04**: `expected_origins` parameter removed from signed requests
 - [ ] **PROT-05**: `expected_url` parameter added for signed requests with validation
 - [ ] **PROT-06**: `expected_url` ignored in unsigned requests (per spec)
 
@@ -101,57 +101,58 @@
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| NAME-01 | Phase 1 | Pending |
-| NAME-02 | Phase 1 | Pending |
-| NAME-03 | Phase 1 | Pending |
-| NAME-04 | Phase 1 | Pending |
-| NAME-05 | Phase 1 | Pending |
-| PROT-01 | Phase 1 | Pending |
-| PROT-02 | Phase 1 | Pending |
-| PROT-03 | Phase 1 | Pending |
-| PROT-04 | Phase 1 | Pending |
-| PROT-05 | Phase 1 | Pending |
-| PROT-06 | Phase 1 | Pending |
-| META-01 | Phase 1 | Pending |
-| META-02 | Phase 1 | Pending |
-| META-03 | Phase 1 | Pending |
-| META-04 | Phase 1 | Pending |
-| PKCE-01 | Phase 2 | Pending |
-| PKCE-02 | Phase 2 | Pending |
-| PKCE-03 | Phase 2 | Pending |
-| PKCE-04 | Phase 2 | Pending |
-| FLOW-01 | Phase 2 | Pending |
-| FLOW-02 | Phase 2 | Pending |
-| FLOW-03 | Phase 2 | Pending |
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| SESS-01 | Phase 2 | Pending |
-| SESS-02 | Phase 2 | Pending |
-| SESS-03 | Phase 2 | Pending |
-| VP-01 | Phase 2 | Pending |
-| VP-02 | Phase 2 | Pending |
-| VP-03 | Phase 2 | Pending |
-| VP-04 | Phase 2 | Pending |
-| VP-05 | Phase 2 | Pending |
-| VP-06 | Phase 2 | Pending |
-| ERR-01 | Phase 2 | Pending |
-| ERR-02 | Phase 2 | Pending |
-| TEST-01 | Phase 3 | Pending |
-| TEST-02 | Phase 3 | Pending |
-| TEST-03 | Phase 3 | Pending |
-| TEST-04 | Phase 3 | Pending |
-| TEST-05 | Phase 3 | Pending |
-| DOC-01 | Phase 3 | Pending |
-| DOC-02 | Phase 3 | Pending |
-| DOC-03 | Phase 3 | Pending |
+| Requirement | Phase | Status | Notes |
+|-------------|-------|--------|-------|
+| NAME-01 | Phase 1 | Pending | |
+| NAME-02 | Deferred | Deferred | File renaming deferred per research findings; see ROADMAP |
+| NAME-03 | Phase 1 | Pending | |
+| NAME-04 | Phase 1 | Pending | |
+| NAME-05 | Phase 1 | Pending | |
+| PROT-01 | Phase 1 | Pending | |
+| PROT-02 | Phase 1 | Pending | |
+| PROT-03 | Phase 1 | Pending | |
+| PROT-04 | Phase 1 | Satisfied | Field never existed in codebase |
+| PROT-05 | Phase 2 | Pending | Moved from Phase 1; implementation logic not schema |
+| PROT-06 | Phase 2 | Pending | Moved from Phase 1; implementation logic not schema |
+| META-01 | Phase 1 | Pending | |
+| META-02 | Phase 1 | Pending | |
+| META-03 | Phase 1 | Pending | |
+| META-04 | Phase 1 | Pending | |
+| PKCE-01 | Phase 2 | Pending | |
+| PKCE-02 | Phase 2 | Pending | |
+| PKCE-03 | Phase 2 | Pending | |
+| PKCE-04 | Phase 2 | Pending | |
+| FLOW-01 | Phase 2 | Pending | |
+| FLOW-02 | Phase 2 | Pending | |
+| FLOW-03 | Phase 2 | Pending | |
+| AUTH-01 | Phase 2 | Pending | |
+| AUTH-02 | Phase 2 | Pending | |
+| SESS-01 | Phase 2 | Pending | |
+| SESS-02 | Phase 2 | Pending | |
+| SESS-03 | Phase 2 | Pending | |
+| VP-01 | Phase 2 | Pending | |
+| VP-02 | Phase 2 | Pending | |
+| VP-03 | Phase 2 | Pending | |
+| VP-04 | Phase 2 | Pending | |
+| VP-05 | Phase 2 | Pending | |
+| VP-06 | Phase 2 | Pending | |
+| ERR-01 | Phase 2 | Pending | |
+| ERR-02 | Phase 2 | Pending | |
+| TEST-01 | Phase 3 | Pending | |
+| TEST-02 | Phase 3 | Pending | |
+| TEST-03 | Phase 3 | Pending | |
+| TEST-04 | Phase 3 | Pending | |
+| TEST-05 | Phase 3 | Pending | |
+| DOC-01 | Phase 3 | Pending | |
+| DOC-02 | Phase 3 | Pending | |
+| DOC-03 | Phase 3 | Pending | |
 
 **Coverage:**
 - v1 requirements: 36 total
-- Mapped to phases: 36/36 (100%)
-- Unmapped: 0
+- Mapped to phases: 34/36 (94%)
+- Deferred: 1 (NAME-02)
+- Already satisfied: 1 (PROT-04)
 
 ---
 *Requirements defined: 2026-01-29*
-*Last updated: 2026-01-29 after roadmap creation*
+*Last updated: 2026-01-29 after plan revision (NAME-02 deferred, PROT-04/05/06 clarified)*

@@ -21,14 +21,22 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Phase 1: Schema & Type Foundation
 **Goal**: All TypeScript types, Zod schemas, and protocol constants reflect IAE specification
 **Depends on**: Nothing (first phase)
-**Requirements**: NAME-01, NAME-02, NAME-03, NAME-04, NAME-05, PROT-01, PROT-02, PROT-03, PROT-04, PROT-05, PROT-06, META-01, META-02, META-03, META-04
+**Requirements**: NAME-01, NAME-03, NAME-04, NAME-05, PROT-01, PROT-02, PROT-03, PROT-04, META-01, META-02, META-03, META-04
+**Deferred**: NAME-02 (file renaming - see note below)
+**Moved to Phase 2**: PROT-05, PROT-06 (expected_url validation is implementation logic)
 **Success Criteria** (what must be TRUE):
   1. All exported types use IAE naming (InteractiveAuthorizationEndpoint, not InteractiveAuthorizationRequest)
   2. Response modes use iae_post and iae_post.jwt (not iar-post)
   3. Authorization Server metadata schema includes interactive_authorization_endpoint and require_interactive_authorization_request
-  4. Zod schemas validate expected_url for signed requests and ignore it for unsigned requests
-  5. Audience prefix uses iae: (not iar:)
+  4. Audience prefix uses iae: (not iar:)
 **Plans:** 2 plans
+
+**Note on NAME-02 (file renaming):**
+File/folder renaming from `interactive-authorization` to `interactive-authorization-endpoint` is intentionally deferred per research findings (01-RESEARCH.md, Open Question 1). Rationale: The rename would cause import churn across the codebase with minimal practical benefit; current naming is already descriptive. Can be revisited post-v1 if spec consistently uses full terminology.
+
+**Note on PROT-04/05/06:**
+- PROT-04 (remove expected_origins): Already satisfied - field never existed in codebase
+- PROT-05/06 (expected_url validation): These are Wallet-side validation requirements when processing OpenID4VP requests, not schema definitions. Moved to Phase 2 with VP-02, VP-03, VP-04.
 
 Plans:
 - [ ] 01-01-PLAN.md — Update Zod schemas, types, and protocol constants to IAE naming
@@ -37,7 +45,7 @@ Plans:
 ### Phase 2: Implementation & Integration
 **Goal**: All function implementations, server/client classes, and security flows conform to IAE specification
 **Depends on**: Phase 1
-**Requirements**: PKCE-01, PKCE-02, PKCE-03, PKCE-04, FLOW-01, FLOW-02, FLOW-03, AUTH-01, AUTH-02, SESS-01, SESS-02, SESS-03, VP-01, VP-02, VP-03, VP-04, VP-05, VP-06, ERR-01, ERR-02
+**Requirements**: PROT-05, PROT-06, PKCE-01, PKCE-02, PKCE-03, PKCE-04, FLOW-01, FLOW-02, FLOW-03, AUTH-01, AUTH-02, SESS-01, SESS-02, SESS-03, VP-01, VP-02, VP-03, VP-04, VP-05, VP-06, ERR-01, ERR-02
 **Success Criteria** (what must be TRUE):
   1. Authorization Server can return auth_session in redirect response (not just code)
   2. Wallet makes follow-up request with code_verifier when redirect_to_web uses PKCE
@@ -67,7 +75,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
