@@ -103,13 +103,55 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled during roadmap creation) | | |
+| NAME-01 | Phase 1 | Pending |
+| NAME-02 | Phase 1 | Pending |
+| NAME-03 | Phase 1 | Pending |
+| NAME-04 | Phase 1 | Pending |
+| NAME-05 | Phase 1 | Pending |
+| PROT-01 | Phase 1 | Pending |
+| PROT-02 | Phase 1 | Pending |
+| PROT-03 | Phase 1 | Pending |
+| PROT-04 | Phase 1 | Pending |
+| PROT-05 | Phase 1 | Pending |
+| PROT-06 | Phase 1 | Pending |
+| META-01 | Phase 1 | Pending |
+| META-02 | Phase 1 | Pending |
+| META-03 | Phase 1 | Pending |
+| META-04 | Phase 1 | Pending |
+| PKCE-01 | Phase 2 | Pending |
+| PKCE-02 | Phase 2 | Pending |
+| PKCE-03 | Phase 2 | Pending |
+| PKCE-04 | Phase 2 | Pending |
+| FLOW-01 | Phase 2 | Pending |
+| FLOW-02 | Phase 2 | Pending |
+| FLOW-03 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| SESS-01 | Phase 2 | Pending |
+| SESS-02 | Phase 2 | Pending |
+| SESS-03 | Phase 2 | Pending |
+| VP-01 | Phase 2 | Pending |
+| VP-02 | Phase 2 | Pending |
+| VP-03 | Phase 2 | Pending |
+| VP-04 | Phase 2 | Pending |
+| VP-05 | Phase 2 | Pending |
+| VP-06 | Phase 2 | Pending |
+| ERR-01 | Phase 2 | Pending |
+| ERR-02 | Phase 2 | Pending |
+| TEST-01 | Phase 3 | Pending |
+| TEST-02 | Phase 3 | Pending |
+| TEST-03 | Phase 3 | Pending |
+| TEST-04 | Phase 3 | Pending |
+| TEST-05 | Phase 3 | Pending |
+| DOC-01 | Phase 3 | Pending |
+| DOC-02 | Phase 3 | Pending |
+| DOC-03 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 36 total
-- Mapped to phases: (pending roadmap)
-- Unmapped: (pending roadmap)
+- Mapped to phases: 36/36 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-29*
-*Last updated: 2026-01-29 after initial definition*
+*Last updated: 2026-01-29 after roadmap creation*
