@@ -38,6 +38,15 @@ export interface ParseInteractiveAuthorizationEndpointRequestResult extends Pars
    * Indicates if this is a follow-up request (has auth_session)
    */
   isFollowUpRequest: boolean
+
+  /**
+   * PKCE state from initial request (if PKCE was used)
+   * Server should store this with auth_session for later verification
+   */
+  pkce?: {
+    codeChallenge: string
+    codeChallengeMethod: 'S256' | 'plain'
+  }
 }
 
 /**
@@ -114,11 +123,20 @@ export function parseInteractiveAuthorizationEndpointRequest(
       request: options.request,
     })
 
+    // Extract PKCE state from initial request if present
+    const pkce = parsedRequest.data.code_challenge
+      ? {
+          codeChallenge: parsedRequest.data.code_challenge,
+          codeChallengeMethod: (parsedRequest.data.code_challenge_method ?? 'S256') as 'S256' | 'plain',
+        }
+      : undefined
+
     return {
       interactiveAuthorizationRequest,
       isFollowUpRequest: false,
       dpop,
       clientAttestation,
+      pkce,
     }
   }
 }

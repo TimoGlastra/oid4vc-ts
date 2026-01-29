@@ -36,6 +36,12 @@ export const zInteractiveAuthorizationEndpointRequest = z
 
     // response_type is always 'code' for interactive authorization
     response_type: z.literal('code').default('code'),
+
+    // OPTIONAL: PKCE code challenge (required when redirect_to_web in interaction_types_supported)
+    code_challenge: z.optional(z.string()),
+
+    // OPTIONAL: PKCE code challenge method
+    code_challenge_method: z.optional(z.enum(['S256', 'plain'])),
   })
   .loose()
 

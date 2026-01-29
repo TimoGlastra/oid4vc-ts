@@ -4,6 +4,7 @@ import { createDpopHeadersForRequest, extractDpopNonceFromHeaders, type RequestD
 import { authorizationServerRequestWithDpopRetry } from '../dpop/dpop-retry.js'
 import { Oauth2Error } from '../error/Oauth2Error.js'
 import type { AuthorizationServerMetadata } from '../metadata/authorization-server/z-authorization-server-metadata.js'
+import { createPkce, type CreatePkceReturn } from '../pkce.js'
 import type {
   InteractiveAuthorizationEndpointFollowUpRequest,
   InteractiveAuthorizationEndpointRequest,
@@ -37,6 +38,19 @@ export interface SendInteractiveAuthorizationEndpointRequestOptions {
    * Used for OAuth-Client-Attestation headers, etc.
    */
   additionalHeaders?: Record<string, string>
+
+  /**
+   * Allowed PKCE code challenge methods from server metadata
+   * Used when generating PKCE for redirect_to_web flows
+   * Defaults to ['S256', 'plain'] if not provided
+   */
+  pkceCodeChallengeMethods?: string[]
+
+  /**
+   * Code verifier for follow-up requests after redirect_to_web (FLOW-03)
+   * Should be passed after initial request returns PKCE codeVerifier
+   */
+  codeVerifier?: string
 }
 
 /**
@@ -92,6 +106,34 @@ export async function sendInteractiveAuthorizationEndpointRequest(options: SendI
     )
   }
 
+  // Determine if this is an initial request or follow-up
+  const isFollowUpRequest = 'auth_session' in options.request
+
+  // Generate PKCE for initial requests with redirect_to_web support
+  let pkce: CreatePkceReturn | undefined
+  const requestBody = { ...options.request } as Record<string, unknown>
+
+  if (!isFollowUpRequest && 'interaction_types_supported' in options.request) {
+    // Parse interaction types (comma-separated)
+    const interactionTypes = (options.request.interaction_types_supported as string).split(',').map((t: string) => t.trim())
+
+    // Generate PKCE if redirect_to_web is supported
+    if (interactionTypes.includes('redirect_to_web')) {
+      pkce = await createPkce({
+        allowedCodeChallengeMethods: options.pkceCodeChallengeMethods ?? ['S256', 'plain'],
+        callbacks: options.callbacks,
+      })
+
+      requestBody.code_challenge = pkce.codeChallenge
+      requestBody.code_challenge_method = pkce.codeChallengeMethod
+    }
+  }
+
+  // Add code_verifier for follow-up requests (FLOW-03)
+  if (isFollowUpRequest && options.codeVerifier) {
+    requestBody.code_verifier = options.codeVerifier
+  }
+
   return authorizationServerRequestWithDpopRetry({
     dpop: options.dpop,
     request: async (dpop) => {
@@ -119,7 +161,7 @@ export async function sendInteractiveAuthorizationEndpointRequest(options: SendI
         interactiveAuthorizationEndpoint,
         {
           method: 'POST',
-          body: objectToQueryParams(options.request as Record<string, unknown>).toString(),
+          body: objectToQueryParams(requestBody).toString(),
           headers,
         }
       )
@@ -133,6 +175,7 @@ export async function sendInteractiveAuthorizationEndpointRequest(options: SendI
               nonce: dpopNonce,
             }
           : undefined,
+        pkce,
       }
     },
   })
