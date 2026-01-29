@@ -28,10 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Authorization Server metadata schema includes interactive_authorization_endpoint and require_interactive_authorization_request
   4. Zod schemas validate expected_url for signed requests and ignore it for unsigned requests
   5. Audience prefix uses iae: (not iar:)
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md — Update Zod schemas, types, and protocol constants to IAE naming
+- [ ] 01-02-PLAN.md — Update implementation files and public API exports
 
 ### Phase 2: Implementation & Integration
 **Goal**: All function implementations, server/client classes, and security flows conform to IAE specification
@@ -70,6 +71,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema & Type Foundation | 0/1 | Not started | - |
+| 1. Schema & Type Foundation | 0/2 | Planned | - |
 | 2. Implementation & Integration | 0/1 | Not started | - |
 | 3. Verification & Documentation | 0/1 | Not started | - |
