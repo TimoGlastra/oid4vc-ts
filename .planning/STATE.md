@@ -10,30 +10,30 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 2 of 3 (Implementation and Integration)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2025-01-29 — Completed 02-01-PLAN.md (Client-side IAE protocol updates)
+Last activity: 2026-01-29 — Completed 02-02-PLAN.md (Server-side IAE protocol updates)
 
-Progress: [████░░░░░░] 40%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 8 min
-- Total execution time: 0.4 hours
+- Total plans completed: 4
+- Average duration: 7 min
+- Total execution time: 0.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-schema-type-foundation | 2/2 | 16 min | 8 min |
-| 02-implementation-and-integration | 1/3 | 8 min | 8 min |
+| 02-implementation-and-integration | 2/3 | 12 min | 6 min |
 | 03-integration-testing | 0/1 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (16 min), 01-02 (0 min - auto-completed), 02-01 (8 min)
-- Trend: Consistent 8-minute execution for substantive plans
+- Last 5 plans: 01-01 (16 min), 01-02 (0 min - auto-completed), 02-01 (8 min), 02-02 (4 min)
+- Trend: Accelerating - 02-02 completed as part of 02-01 due to overlapping scope
 
 *Updated after each plan completion*
 
@@ -53,6 +53,10 @@ Recent decisions affecting current work:
 - PKCE generated only for initial requests (02-01): Follow-up requests use saved codeVerifier; detection via auth_session presence
 - expected_url validation is wallet-side (02-01): Wallet decodes JWT but doesn't verify signature (separate responsibility)
 - VP response encryption uses ECDH-ES + A256GCM (02-01): JARM spec compliance for iae_post.jwt mode
+- PKCE downgrade prevention bidirectional (02-02): Reject both missing code_verifier when PKCE was used AND unexpected code_verifier when PKCE was not used
+- HTTPS validation with localhost exception (02-02): Enforce HTTPS for redirect URIs per RFC 8252, but allow localhost/127.0.0.1 for development
+- Nonce-to-auth_session binding implementation-specific (02-02): Library provides parameter and documents requirement, implementation handles storage
+- response_mode validation for OpenID4VP (02-02): Enforce iae_post or iae_post.jwt per VP-01 requirement
 
 ### Pending Todos
 
@@ -64,6 +68,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2025-01-29 19:57:07 UTC
-Stopped at: Completed 02-01-PLAN.md (Client-side IAE protocol updates)
+Last session: 2026-01-29 18:11:26 UTC
+Stopped at: Completed 02-02-PLAN.md (Server-side IAE protocol updates)
 Resume file: None
