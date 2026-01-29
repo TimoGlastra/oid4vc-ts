@@ -68,10 +68,10 @@ Plans:
   3. Tests verify new metadata parameters (interactive_authorization_endpoint, require_interactive_authorization_request)
   4. JSDoc comments reference IAE terminology consistently
   5. Examples demonstrate new naming and protocol patterns
-**Plans**: TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Update test suite for IAE protocol compliance and JSDoc documentation
 
 ## Progress
 
