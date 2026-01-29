@@ -26,8 +26,8 @@ import { Oauth2ErrorCodes } from './common/z-oauth2-error'
 import { extractDpopNonceFromHeaders } from './dpop/dpop'
 import { Oauth2ClientAuthorizationChallengeError } from './error/Oauth2ClientAuthorizationChallengeError'
 import {
-  type SendInteractiveAuthorizationRequestOptions,
-  sendInteractiveAuthorizationRequest,
+  type SendInteractiveAuthorizationEndpointRequestOptions,
+  sendInteractiveAuthorizationEndpointRequest,
 } from './interactive-authorization/send-interactive-authorization-request'
 import { fetchAuthorizationServerMetadata } from './metadata/authorization-server/authorization-server-metadata'
 import type { AuthorizationServerMetadata } from './metadata/authorization-server/z-authorization-server-metadata'
@@ -179,9 +179,9 @@ export class Oauth2Client {
    * @returns The interactive authorization response and updated DPoP config
    */
   public async sendInteractiveAuthorizationRequest(
-    options: Omit<SendInteractiveAuthorizationRequestOptions, 'callbacks'>
+    options: Omit<SendInteractiveAuthorizationEndpointRequestOptions, 'callbacks'>
   ) {
-    return sendInteractiveAuthorizationRequest({
+    return sendInteractiveAuthorizationEndpointRequest({
       ...options,
       callbacks: this.options.callbacks,
     })

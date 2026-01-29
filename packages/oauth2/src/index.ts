@@ -142,31 +142,34 @@ export {
 export { Oauth2ServerErrorResponseError } from './error/Oauth2ServerErrorResponseError'
 export * from './id-token'
 export type {
-  CreateInteractiveAuthorizationCodeResponseOptions,
-  CreateInteractiveAuthorizationErrorResponseOptions,
-  CreateInteractiveAuthorizationOpenid4vpInteractionOptions,
-  CreateInteractiveAuthorizationRedirectToWebInteractionOptions,
+  CreateInteractiveAuthorizationEndpointCodeResponseOptions,
+  CreateInteractiveAuthorizationEndpointErrorResponseOptions,
+  CreateInteractiveAuthorizationEndpointOpenid4vpInteractionOptions,
+  CreateInteractiveAuthorizationEndpointRedirectToWebInteractionOptions,
 } from './interactive-authorization/create-interactive-authorization-response'
 export type {
-  ParseInteractiveAuthorizationRequestOptions,
-  ParseInteractiveAuthorizationRequestResult,
+  ParseInteractiveAuthorizationEndpointRequestOptions,
+  ParseInteractiveAuthorizationEndpointRequestResult,
 } from './interactive-authorization/parse-interactive-authorization-request'
-export type { SendInteractiveAuthorizationRequestOptions } from './interactive-authorization/send-interactive-authorization-request'
+export type { SendInteractiveAuthorizationEndpointRequestOptions } from './interactive-authorization/send-interactive-authorization-request'
 export type {
-  VerifyInteractiveAuthorizationRequestOptions,
-  VerifyInteractiveAuthorizationRequestReturn,
+  VerifyInteractiveAuthorizationEndpointRequestOptions,
+  VerifyInteractiveAuthorizationEndpointRequestReturn,
 } from './interactive-authorization/verify-interactive-authorization-request'
 export {
-  type InteractiveAuthorizationCodeResponse,
-  InteractiveAuthorizationErrorCodes,
-  type InteractiveAuthorizationErrorResponse,
-  type InteractiveAuthorizationFollowUpRequest,
-  type InteractiveAuthorizationInteractionRequiredResponse,
-  type InteractiveAuthorizationRequest,
-  type InteractiveAuthorizationResponse,
-  type InteractiveAuthorizationResponseStatus,
-  type InteractiveAuthorizationType,
+  IAE_AUDIENCE_PREFIX,
+  type InteractiveAuthorizationEndpointCodeResponse,
+  InteractiveAuthorizationEndpointErrorCodes,
+  type InteractiveAuthorizationEndpointErrorResponse,
+  type InteractiveAuthorizationEndpointFollowUpRequest,
+  type InteractiveAuthorizationEndpointInteractionRequiredResponse,
+  type InteractiveAuthorizationEndpointInteractionType,
+  type InteractiveAuthorizationEndpointRequest,
+  type InteractiveAuthorizationEndpointResponse,
+  type InteractiveAuthorizationEndpointResponseStatus,
   type Openid4vpRequest,
+  RESPONSE_MODE_IAE_POST,
+  RESPONSE_MODE_IAE_POST_JWT,
 } from './interactive-authorization/z-interactive-authorization'
 export type { CreateJarAuthorizationRequestOptions } from './jar/create-jar-authorization-request'
 export { createJarAuthorizationRequest } from './jar/create-jar-authorization-request'

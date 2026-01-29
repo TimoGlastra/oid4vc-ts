@@ -7,15 +7,15 @@ import type { RequestLike } from '../common/z-common.js'
 import { Oauth2ErrorCodes } from '../common/z-oauth2-error.js'
 import { Oauth2ServerErrorResponseError } from '../error/Oauth2ServerErrorResponseError.js'
 import type {
-  InteractiveAuthorizationFollowUpRequest,
-  InteractiveAuthorizationRequest,
+  InteractiveAuthorizationEndpointFollowUpRequest,
+  InteractiveAuthorizationEndpointRequest,
 } from './z-interactive-authorization.js'
 import {
-  zInteractiveAuthorizationFollowUpRequest,
-  zInteractiveAuthorizationRequest,
+  zInteractiveAuthorizationEndpointFollowUpRequest,
+  zInteractiveAuthorizationEndpointRequest,
 } from './z-interactive-authorization.js'
 
-export interface ParseInteractiveAuthorizationRequestOptions {
+export interface ParseInteractiveAuthorizationEndpointRequestOptions {
   /**
    * The HTTP request object
    */
@@ -27,12 +27,12 @@ export interface ParseInteractiveAuthorizationRequestOptions {
   interactiveAuthorizationRequest: unknown
 }
 
-export interface ParseInteractiveAuthorizationRequestResult extends ParseAuthorizationRequestResult {
+export interface ParseInteractiveAuthorizationEndpointRequestResult extends ParseAuthorizationRequestResult {
   /**
    * The parsed interactive authorization request
    * Can be either an initial request or a follow-up request
    */
-  interactiveAuthorizationRequest: InteractiveAuthorizationRequest | InteractiveAuthorizationFollowUpRequest
+  interactiveAuthorizationRequest: InteractiveAuthorizationEndpointRequest | InteractiveAuthorizationEndpointFollowUpRequest
 
   /**
    * Indicates if this is a follow-up request (has auth_session)
@@ -53,7 +53,7 @@ export interface ParseInteractiveAuthorizationRequestResult extends ParseAuthori
  *
  * @example Parse initial request
  * ```ts
- * const { interactiveAuthorizationRequest, isFollowUpRequest } = parseInteractiveAuthorizationRequest({
+ * const { interactiveAuthorizationRequest, isFollowUpRequest } = parseInteractiveAuthorizationEndpointRequest({
  *   request: req,
  *   interactiveAuthorizationRequest: req.body
  * })
@@ -62,16 +62,16 @@ export interface ParseInteractiveAuthorizationRequestResult extends ParseAuthori
  *
  * @example Parse follow-up request
  * ```ts
- * const { interactiveAuthorizationRequest, isFollowUpRequest } = parseInteractiveAuthorizationRequest({
+ * const { interactiveAuthorizationRequest, isFollowUpRequest } = parseInteractiveAuthorizationEndpointRequest({
  *   request: req,
  *   interactiveAuthorizationRequest: req.body
  * })
  * // isFollowUpRequest = true
  * ```
  */
-export function parseInteractiveAuthorizationRequest(
-  options: ParseInteractiveAuthorizationRequestOptions
-): ParseInteractiveAuthorizationRequestResult {
+export function parseInteractiveAuthorizationEndpointRequest(
+  options: ParseInteractiveAuthorizationEndpointRequestOptions
+): ParseInteractiveAuthorizationEndpointRequestResult {
   const { interactiveAuthorizationRequest: requestBody } = options
 
   // Check if this is a follow-up request (has auth_session)
@@ -83,7 +83,7 @@ export function parseInteractiveAuthorizationRequest(
 
   if (isFollowUpRequest) {
     // Parse as follow-up request
-    const parsedRequest = zInteractiveAuthorizationFollowUpRequest.safeParse(requestBody)
+    const parsedRequest = zInteractiveAuthorizationEndpointFollowUpRequest.safeParse(requestBody)
     if (!parsedRequest.success) {
       throw new Oauth2ServerErrorResponseError({
         error: Oauth2ErrorCodes.InvalidRequest,
@@ -100,7 +100,7 @@ export function parseInteractiveAuthorizationRequest(
     }
   } else {
     // Parse as initial request
-    const parsedRequest = zInteractiveAuthorizationRequest.safeParse(requestBody)
+    const parsedRequest = zInteractiveAuthorizationEndpointRequest.safeParse(requestBody)
     if (!parsedRequest.success) {
       throw new Oauth2ServerErrorResponseError({
         error: Oauth2ErrorCodes.InvalidRequest,

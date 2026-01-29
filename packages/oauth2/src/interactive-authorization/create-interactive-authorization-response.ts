@@ -1,11 +1,11 @@
 import type {
-  InteractiveAuthorizationCodeResponse,
-  InteractiveAuthorizationErrorResponse,
-  InteractiveAuthorizationInteractionRequiredResponse,
+  InteractiveAuthorizationEndpointCodeResponse,
+  InteractiveAuthorizationEndpointErrorResponse,
+  InteractiveAuthorizationEndpointInteractionRequiredResponse,
   Openid4vpRequest,
 } from './z-interactive-authorization.js'
 
-export interface CreateInteractiveAuthorizationCodeResponseOptions {
+export interface CreateInteractiveAuthorizationEndpointCodeResponseOptions {
   /**
    * The authorization code to return
    */
@@ -28,14 +28,14 @@ export interface CreateInteractiveAuthorizationCodeResponseOptions {
  *
  * @example
  * ```ts
- * const response = createInteractiveAuthorizationCodeResponse({
+ * const response = createInteractiveAuthorizationEndpointCodeResponse({
  *   authorizationCode: 'SplxlOBeZQQYbYS6WxSbIA'
  * })
  * ```
  */
-export function createInteractiveAuthorizationCodeResponse(
-  options: CreateInteractiveAuthorizationCodeResponseOptions
-): InteractiveAuthorizationCodeResponse {
+export function createInteractiveAuthorizationEndpointCodeResponse(
+  options: CreateInteractiveAuthorizationEndpointCodeResponseOptions
+): InteractiveAuthorizationEndpointCodeResponse {
   return {
     status: 'ok',
     code: options.authorizationCode,
@@ -43,7 +43,7 @@ export function createInteractiveAuthorizationCodeResponse(
   }
 }
 
-export interface CreateInteractiveAuthorizationOpenid4vpInteractionOptions {
+export interface CreateInteractiveAuthorizationEndpointOpenid4vpInteractionOptions {
   /**
    * Session identifier for subsequent requests
    */
@@ -73,7 +73,7 @@ export interface CreateInteractiveAuthorizationOpenid4vpInteractionOptions {
  *
  * @example With unsigned request
  * ```ts
- * const response = createInteractiveAuthorizationOpenid4vpInteraction({
+ * const response = createInteractiveAuthorizationEndpointOpenid4vpInteraction({
  *   authSession: 'session-123',
  *   openid4vpRequest: {
  *     response_type: 'vp_token',
@@ -86,7 +86,7 @@ export interface CreateInteractiveAuthorizationOpenid4vpInteractionOptions {
  *
  * @example With signed request
  * ```ts
- * const response = createInteractiveAuthorizationOpenid4vpInteraction({
+ * const response = createInteractiveAuthorizationEndpointOpenid4vpInteraction({
  *   authSession: 'session-123',
  *   openid4vpRequest: {
  *     request: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...'
@@ -94,9 +94,9 @@ export interface CreateInteractiveAuthorizationOpenid4vpInteractionOptions {
  * })
  * ```
  */
-export function createInteractiveAuthorizationOpenid4vpInteraction(
-  options: CreateInteractiveAuthorizationOpenid4vpInteractionOptions
-): InteractiveAuthorizationInteractionRequiredResponse {
+export function createInteractiveAuthorizationEndpointOpenid4vpInteraction(
+  options: CreateInteractiveAuthorizationEndpointOpenid4vpInteractionOptions
+): InteractiveAuthorizationEndpointInteractionRequiredResponse {
   return {
     status: 'require_interaction',
     type: 'openid4vp_presentation',
@@ -106,7 +106,7 @@ export function createInteractiveAuthorizationOpenid4vpInteraction(
   }
 }
 
-export interface CreateInteractiveAuthorizationRedirectToWebInteractionOptions {
+export interface CreateInteractiveAuthorizationEndpointRedirectToWebInteractionOptions {
   /**
    * Session identifier for subsequent requests
    */
@@ -141,16 +141,16 @@ export interface CreateInteractiveAuthorizationRedirectToWebInteractionOptions {
  *
  * @example
  * ```ts
- * const response = createInteractiveAuthorizationRedirectToWebInteraction({
+ * const response = createInteractiveAuthorizationEndpointRedirectToWebInteraction({
  *   authSession: 'session-123',
  *   requestUri: 'urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c',
  *   expiresIn: 60
  * })
  * ```
  */
-export function createInteractiveAuthorizationRedirectToWebInteraction(
-  options: CreateInteractiveAuthorizationRedirectToWebInteractionOptions
-): InteractiveAuthorizationInteractionRequiredResponse {
+export function createInteractiveAuthorizationEndpointRedirectToWebInteraction(
+  options: CreateInteractiveAuthorizationEndpointRedirectToWebInteractionOptions
+): InteractiveAuthorizationEndpointInteractionRequiredResponse {
   return {
     status: 'require_interaction',
     type: 'redirect_to_web',
@@ -161,7 +161,7 @@ export function createInteractiveAuthorizationRedirectToWebInteraction(
   }
 }
 
-export interface CreateInteractiveAuthorizationErrorResponseOptions {
+export interface CreateInteractiveAuthorizationEndpointErrorResponseOptions {
   /**
    * The error code
    * Can be standard OAuth2 error codes or 'missing_interaction_type'
@@ -194,15 +194,15 @@ export interface CreateInteractiveAuthorizationErrorResponseOptions {
  *
  * @example
  * ```ts
- * const response = createInteractiveAuthorizationErrorResponse({
+ * const response = createInteractiveAuthorizationEndpointErrorResponse({
  *   error: 'missing_interaction_type',
  *   errorDescription: 'interaction_types_supported is missing openid4vp_presentation'
  * })
  * ```
  */
-export function createInteractiveAuthorizationErrorResponse(
-  options: CreateInteractiveAuthorizationErrorResponseOptions
-): InteractiveAuthorizationErrorResponse {
+export function createInteractiveAuthorizationEndpointErrorResponse(
+  options: CreateInteractiveAuthorizationEndpointErrorResponseOptions
+): InteractiveAuthorizationEndpointErrorResponse {
   return {
     error: options.error,
     error_description: options.errorDescription,

@@ -4,18 +4,18 @@ import type {
 } from '../authorization-request/verify-authorization-request.js'
 import { verifyAuthorizationRequest } from '../authorization-request/verify-authorization-request.js'
 import type {
-  InteractiveAuthorizationFollowUpRequest,
-  InteractiveAuthorizationRequest,
+  InteractiveAuthorizationEndpointFollowUpRequest,
+  InteractiveAuthorizationEndpointRequest,
 } from './z-interactive-authorization.js'
 
-export type VerifyInteractiveAuthorizationRequestReturn = VerifyAuthorizationRequestReturn
+export type VerifyInteractiveAuthorizationEndpointRequestReturn = VerifyAuthorizationRequestReturn
 
-export interface VerifyInteractiveAuthorizationRequestOptions
+export interface VerifyInteractiveAuthorizationEndpointRequestOptions
   extends Omit<VerifyAuthorizationRequestOptions, 'authorizationRequest'> {
   /**
    * The parsed interactive authorization request to verify
    */
-  interactiveAuthorizationRequest: InteractiveAuthorizationRequest | InteractiveAuthorizationFollowUpRequest
+  interactiveAuthorizationRequest: InteractiveAuthorizationEndpointRequest | InteractiveAuthorizationEndpointFollowUpRequest
 
   /**
    * Indicates if this is a follow-up request
@@ -40,7 +40,7 @@ export interface VerifyInteractiveAuthorizationRequestOptions
  *
  * @example Verify initial request
  * ```ts
- * const result = await verifyInteractiveAuthorizationRequest({
+ * const result = await verifyInteractiveAuthorizationEndpointRequest({
  *   interactiveAuthorizationRequest: request,
  *   isFollowUpRequest: false,
  *   authorizationServerMetadata,
@@ -48,9 +48,9 @@ export interface VerifyInteractiveAuthorizationRequestOptions
  * })
  * ```
  */
-export async function verifyInteractiveAuthorizationRequest(
-  options: VerifyInteractiveAuthorizationRequestOptions
-): Promise<VerifyInteractiveAuthorizationRequestReturn> {
+export async function verifyInteractiveAuthorizationEndpointRequest(
+  options: VerifyInteractiveAuthorizationEndpointRequestOptions
+): Promise<VerifyInteractiveAuthorizationEndpointRequestReturn> {
   const { interactiveAuthorizationRequest, isFollowUpRequest } = options
 
   // For follow-up requests, we have minimal parameters to verify
@@ -67,7 +67,7 @@ export async function verifyInteractiveAuthorizationRequest(
   // For initial requests, perform full verification
   const { clientAttestation, dpop } = await verifyAuthorizationRequest({
     ...options,
-    authorizationRequest: interactiveAuthorizationRequest as InteractiveAuthorizationRequest,
+    authorizationRequest: interactiveAuthorizationRequest as InteractiveAuthorizationEndpointRequest,
   })
 
   return {

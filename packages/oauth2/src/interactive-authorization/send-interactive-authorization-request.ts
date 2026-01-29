@@ -5,12 +5,12 @@ import { authorizationServerRequestWithDpopRetry } from '../dpop/dpop-retry.js'
 import { Oauth2Error } from '../error/Oauth2Error.js'
 import type { AuthorizationServerMetadata } from '../metadata/authorization-server/z-authorization-server-metadata.js'
 import type {
-  InteractiveAuthorizationFollowUpRequest,
-  InteractiveAuthorizationRequest,
+  InteractiveAuthorizationEndpointFollowUpRequest,
+  InteractiveAuthorizationEndpointRequest,
 } from './z-interactive-authorization.js'
-import { zInteractiveAuthorizationResponse } from './z-interactive-authorization.js'
+import { zInteractiveAuthorizationEndpointResponse } from './z-interactive-authorization.js'
 
-export interface SendInteractiveAuthorizationRequestOptions {
+export interface SendInteractiveAuthorizationEndpointRequestOptions {
   /**
    * Callback context
    */
@@ -25,7 +25,7 @@ export interface SendInteractiveAuthorizationRequestOptions {
    * The interactive authorization request parameters
    * Can be either an initial request or a follow-up request
    */
-  request: InteractiveAuthorizationRequest | InteractiveAuthorizationFollowUpRequest
+  request: InteractiveAuthorizationEndpointRequest | InteractiveAuthorizationEndpointFollowUpRequest
 
   /**
    * Optional DPoP configuration for request binding
@@ -57,7 +57,7 @@ export interface SendInteractiveAuthorizationRequestOptions {
  *
  * @example Initial request
  * ```ts
- * const result = await sendInteractiveAuthorizationRequest({
+ * const result = await sendInteractiveAuthorizationEndpointRequest({
  *   callbacks,
  *   authorizationServerMetadata,
  *   request: {
@@ -71,7 +71,7 @@ export interface SendInteractiveAuthorizationRequestOptions {
  *
  * @example Follow-up request with OpenID4VP response
  * ```ts
- * const result = await sendInteractiveAuthorizationRequest({
+ * const result = await sendInteractiveAuthorizationEndpointRequest({
  *   callbacks,
  *   authorizationServerMetadata,
  *   request: {
@@ -81,7 +81,7 @@ export interface SendInteractiveAuthorizationRequestOptions {
  * })
  * ```
  */
-export async function sendInteractiveAuthorizationRequest(options: SendInteractiveAuthorizationRequestOptions) {
+export async function sendInteractiveAuthorizationEndpointRequest(options: SendInteractiveAuthorizationEndpointRequestOptions) {
   const fetchWithZod = createZodFetcher(options.callbacks.fetch)
 
   const authorizationServerMetadata = options.authorizationServerMetadata
@@ -114,7 +114,7 @@ export async function sendInteractiveAuthorizationRequest(options: SendInteracti
       })
 
       const { response, result } = await fetchWithZod(
-        zInteractiveAuthorizationResponse,
+        zInteractiveAuthorizationEndpointResponse,
         ContentType.Json,
         interactiveAuthorizationEndpoint,
         {

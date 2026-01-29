@@ -2,8 +2,8 @@ import * as jose from 'jose'
 import { describe, expect, test } from 'vitest'
 import {
   type AuthorizationServerMetadata,
-  type InteractiveAuthorizationFollowUpRequest,
-  type InteractiveAuthorizationRequest,
+  type InteractiveAuthorizationEndpointFollowUpRequest,
+  type InteractiveAuthorizationEndpointRequest,
   type Jwk,
   Oauth2AuthorizationServer,
   Oauth2Client,
@@ -72,7 +72,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       },
     })
 
-    const request: InteractiveAuthorizationRequest = {
+    const request: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'openid4vp_presentation,redirect_to_web',
@@ -125,7 +125,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       },
     })
 
-    const request: InteractiveAuthorizationFollowUpRequest = {
+    const request: InteractiveAuthorizationEndpointFollowUpRequest = {
       auth_session: 'session-123',
       openid4vp_response: JSON.stringify({ vp_token: 'vp-token-data' }),
     }
@@ -169,7 +169,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       },
     })
 
-    const request: InteractiveAuthorizationFollowUpRequest = {
+    const request: InteractiveAuthorizationEndpointFollowUpRequest = {
       auth_session: 'session-789',
       code_verifier: 'verifier-xyz',
     }
@@ -210,7 +210,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       },
     })
 
-    const request: InteractiveAuthorizationRequest = {
+    const request: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'openid4vp_presentation',
@@ -254,7 +254,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       },
     })
 
-    const request: InteractiveAuthorizationRequest = {
+    const request: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'redirect_to_web',
@@ -296,7 +296,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       token_endpoint: 'https://example.com/token',
     }
 
-    const request: InteractiveAuthorizationRequest = {
+    const request: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'openid4vp_presentation',
@@ -350,7 +350,7 @@ describe('Interactive Authorization Endpoint - Client', () => {
       },
     })
 
-    const request: InteractiveAuthorizationRequest = {
+    const request: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'openid4vp_presentation',
@@ -468,7 +468,7 @@ describe('Interactive Authorization Endpoint - Server', () => {
       },
     })
 
-    const requestBody: InteractiveAuthorizationRequest = {
+    const requestBody: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'openid4vp_presentation',
@@ -502,7 +502,7 @@ describe('Interactive Authorization Endpoint - Server', () => {
       },
     })
 
-    const requestBody: InteractiveAuthorizationFollowUpRequest = {
+    const requestBody: InteractiveAuthorizationEndpointFollowUpRequest = {
       auth_session: 'session-123',
       openid4vp_response: JSON.stringify({ vp_token: 'vp-token-data' }),
     }
@@ -665,7 +665,7 @@ describe('Interactive Authorization Endpoint - Server', () => {
       },
     })
 
-    const requestBody: InteractiveAuthorizationRequest = {
+    const requestBody: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'test-client',
       interaction_types_supported: 'openid4vp_presentation',
@@ -715,7 +715,7 @@ describe('Interactive Authorization Endpoint - Integration', () => {
     })
 
     // Step 1: Client sends initial request
-    const initialRequest: InteractiveAuthorizationRequest = {
+    const initialRequest: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'wallet-client',
       interaction_types_supported: 'openid4vp_presentation,redirect_to_web',
@@ -767,7 +767,7 @@ describe('Interactive Authorization Endpoint - Integration', () => {
     expect(interactionResponse.auth_session).toBe('session-integration-123')
 
     // Step 3: Client submits openid4vp response
-    const followUpRequest: InteractiveAuthorizationFollowUpRequest = {
+    const followUpRequest: InteractiveAuthorizationEndpointFollowUpRequest = {
       auth_session: interactionResponse.auth_session,
       openid4vp_response: JSON.stringify({
         vp_token: 'eyJraWQiOiJkaWQ6andrOmV5SmhiR2NpT2lKRlV6STFOaUo5...',
@@ -824,7 +824,7 @@ describe('Interactive Authorization Endpoint - Integration', () => {
     })
 
     // Step 1: Client sends initial request
-    const initialRequest: InteractiveAuthorizationRequest = {
+    const initialRequest: InteractiveAuthorizationEndpointRequest = {
       response_type: 'code',
       client_id: 'wallet-client',
       interaction_types_supported: 'redirect_to_web',
@@ -857,7 +857,7 @@ describe('Interactive Authorization Endpoint - Integration', () => {
     expect(interactionResponse.type).toBe('redirect_to_web')
 
     // Step 3: Client submits code_verifier after web interaction
-    const followUpRequest: InteractiveAuthorizationFollowUpRequest = {
+    const followUpRequest: InteractiveAuthorizationEndpointFollowUpRequest = {
       auth_session: interactionResponse.auth_session,
       code_verifier: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
     }

@@ -4,12 +4,29 @@ import { zAuthorizationRequest } from '../authorization-request/z-authorization-
 import { zOauth2ErrorResponse } from '../common/z-oauth2-error.js'
 
 /**
- * Schema for Interactive Authorization Request (initial request)
+ * Response mode for IAE - direct POST response
+ * Per OpenID4VCI 1.1 spec, uses underscore (not hyphen)
+ */
+export const RESPONSE_MODE_IAE_POST = 'iae_post'
+
+/**
+ * Response mode for IAE - JWT-encrypted POST response
+ */
+export const RESPONSE_MODE_IAE_POST_JWT = 'iae_post.jwt'
+
+/**
+ * Audience prefix for IAE binding
+ * Used in JWT `aud` claim for credential binding
+ */
+export const IAE_AUDIENCE_PREFIX = 'iae:'
+
+/**
+ * Schema for Interactive Authorization Endpoint (initial request)
  *
  * Based on OpenID4VCI 1.1 Interactive Authorization Endpoint
  * Similar to PAR request but sent to interactive_authorization_endpoint
  */
-export const zInteractiveAuthorizationRequest = z
+export const zInteractiveAuthorizationEndpointRequest = z
   .object({
     // All authorization request params except response_type (always 'code' for IAE)
     ...zAuthorizationRequest.omit({ response_type: true }).shape,
@@ -23,11 +40,11 @@ export const zInteractiveAuthorizationRequest = z
   .loose()
 
 /**
- * Schema for Follow-up Interactive Authorization Request
+ * Schema for Follow-up Interactive Authorization Endpoint Request
  *
  * Follow-up requests include auth_session and interaction-specific parameters
  */
-export const zInteractiveAuthorizationFollowUpRequest = z
+export const zInteractiveAuthorizationEndpointFollowUpRequest = z
   .object({
     // REQUIRED in follow-up requests
     auth_session: z.string(),
@@ -43,17 +60,17 @@ export const zInteractiveAuthorizationFollowUpRequest = z
   .loose()
 
 /**
- * Schema for Interactive Authorization Response - Status
+ * Schema for Interactive Authorization Endpoint Response - Status
  */
-export const zInteractiveAuthorizationResponseStatus = z.enum([
+export const zInteractiveAuthorizationEndpointResponseStatus = z.enum([
   'require_interaction', // Additional interaction required
   'ok', // Authorization completed successfully
 ])
 
 /**
- * Schema for Interactive Authorization Response - Interaction Type
+ * Schema for Interactive Authorization Endpoint Response - Interaction Type
  */
-export const zInteractiveAuthorizationType = z.enum([
+export const zInteractiveAuthorizationEndpointInteractionType = z.enum([
   'openid4vp_presentation', // Request OpenID4VP presentation
   'redirect_to_web', // Redirect to web browser
   // Custom interaction types can be added by extensions
@@ -80,13 +97,13 @@ export const zOpenid4vpRequest = z
  *
  * Returned when the Authorization Server requires additional user interaction
  */
-export const zInteractiveAuthorizationInteractionRequiredResponse = z
+export const zInteractiveAuthorizationEndpointInteractionRequiredResponse = z
   .object({
     // Status indicating interaction is required
     status: z.literal('require_interaction'),
 
     // REQUIRED: Type of interaction required
-    type: zInteractiveAuthorizationType,
+    type: zInteractiveAuthorizationEndpointInteractionType,
 
     // REQUIRED: Session identifier for subsequent requests
     auth_session: z.string(),
@@ -105,7 +122,7 @@ export const zInteractiveAuthorizationInteractionRequiredResponse = z
  *
  * Returned when authorization is successfully completed
  */
-export const zInteractiveAuthorizationCodeResponse = z
+export const zInteractiveAuthorizationEndpointCodeResponse = z
   .object({
     // Status indicating success
     status: z.literal('ok'),
@@ -116,43 +133,43 @@ export const zInteractiveAuthorizationCodeResponse = z
   .loose()
 
 /**
- * Schema for Interactive Authorization Error Response
+ * Schema for Interactive Authorization Endpoint Error Response
  *
  * Based on RFC 9126 (PAR) error response with additional error codes
  */
-export const zInteractiveAuthorizationErrorResponse = zOauth2ErrorResponse
+export const zInteractiveAuthorizationEndpointErrorResponse = zOauth2ErrorResponse
   .extend({
     // No additional fields beyond standard OAuth2 error response
   })
   .loose()
 
 /**
- * Union type for all possible Interactive Authorization Responses
+ * Union type for all possible Interactive Authorization Endpoint Responses
  */
-export const zInteractiveAuthorizationResponse = z.union([
-  zInteractiveAuthorizationInteractionRequiredResponse,
-  zInteractiveAuthorizationCodeResponse,
-  zInteractiveAuthorizationErrorResponse,
+export const zInteractiveAuthorizationEndpointResponse = z.union([
+  zInteractiveAuthorizationEndpointInteractionRequiredResponse,
+  zInteractiveAuthorizationEndpointCodeResponse,
+  zInteractiveAuthorizationEndpointErrorResponse,
 ])
 
 /**
  * Type exports
  */
-export type InteractiveAuthorizationRequest = z.input<typeof zInteractiveAuthorizationRequest>
-export type InteractiveAuthorizationFollowUpRequest = z.input<typeof zInteractiveAuthorizationFollowUpRequest>
-export type InteractiveAuthorizationResponseStatus = z.infer<typeof zInteractiveAuthorizationResponseStatus>
-export type InteractiveAuthorizationType = z.infer<typeof zInteractiveAuthorizationType>
+export type InteractiveAuthorizationEndpointRequest = z.input<typeof zInteractiveAuthorizationEndpointRequest>
+export type InteractiveAuthorizationEndpointFollowUpRequest = z.input<typeof zInteractiveAuthorizationEndpointFollowUpRequest>
+export type InteractiveAuthorizationEndpointResponseStatus = z.infer<typeof zInteractiveAuthorizationEndpointResponseStatus>
+export type InteractiveAuthorizationEndpointInteractionType = z.infer<typeof zInteractiveAuthorizationEndpointInteractionType>
 export type Openid4vpRequest = z.infer<typeof zOpenid4vpRequest>
-export type InteractiveAuthorizationInteractionRequiredResponse = z.infer<
-  typeof zInteractiveAuthorizationInteractionRequiredResponse
+export type InteractiveAuthorizationEndpointInteractionRequiredResponse = z.infer<
+  typeof zInteractiveAuthorizationEndpointInteractionRequiredResponse
 >
-export type InteractiveAuthorizationCodeResponse = z.infer<typeof zInteractiveAuthorizationCodeResponse>
-export type InteractiveAuthorizationErrorResponse = z.infer<typeof zInteractiveAuthorizationErrorResponse>
-export type InteractiveAuthorizationResponse = z.infer<typeof zInteractiveAuthorizationResponse>
+export type InteractiveAuthorizationEndpointCodeResponse = z.infer<typeof zInteractiveAuthorizationEndpointCodeResponse>
+export type InteractiveAuthorizationEndpointErrorResponse = z.infer<typeof zInteractiveAuthorizationEndpointErrorResponse>
+export type InteractiveAuthorizationEndpointResponse = z.infer<typeof zInteractiveAuthorizationEndpointResponse>
 
 /**
  * Error code for missing interaction type
  */
-export const InteractiveAuthorizationErrorCodes = {
+export const InteractiveAuthorizationEndpointErrorCodes = {
   MissingInteractionType: 'missing_interaction_type',
 } as const
