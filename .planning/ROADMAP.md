@@ -52,10 +52,11 @@ Plans:
   3. OpenID4VP requests use iae_post or iae_post.jwt response modes
   4. Wallet validates expected_url matches follow-up request URL and returns error if mismatch
   5. Authorization Server enforces distinct auth_session values and associates nonce with each session
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Client-side IAE protocol: PKCE generation and expected_url validation
+- [ ] 02-02-PLAN.md — Server-side IAE protocol: PKCE verification and nonce binding support
 
 ### Phase 3: Verification & Documentation
 **Goal**: All tests pass with new protocol and documentation reflects IAE specification
@@ -79,6 +80,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schema & Type Foundation | 2/2 | Complete ✓ | 2026-01-29 |
-| 2. Implementation & Integration | 0/1 | Not started | - |
+| 1. Schema & Type Foundation | 2/2 | Complete | 2026-01-29 |
+| 2. Implementation & Integration | 0/2 | Not started | - |
 | 3. Verification & Documentation | 0/1 | Not started | - |
